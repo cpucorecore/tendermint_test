@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
 	"time"
 
-	"github.com/tendermint/tendermint/libs/common"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/types"
 
@@ -17,59 +17,49 @@ const (
 	privValidatorKeyFile   = "./test_data/priv_validator_key.json"
 	privValidatorStateFile = "./test_data/priv_validator_state.json"
 
-	blockHashStr      = "0x426D04A90896F55308E1B708ADBC4AFAA36762B7640705C7CC1F45AFF991A29C"
-	blockPartsHashStr = "0x753B1095804F9A6E88BB443BB1C7A41A5E78D265D78BF291299BD342ACBB4CD4"
+	blockHashStr      = "0x5924ED59C4184241253AB480FB722797D44DB86C843F4C0953513771C63F74E7"
+	blockPartsHashStr = "0x17529FD19FE6DE9B92A64C1CCF9D6E367C0FE9FAF982A850D858F2C59C207CB8"
 
-	blockSigStr = "WoeNkFpbKOkz5fh+1dpnBMQ4SuHpzuPOFB0hE52t35EY7w6Ti9k16v5O8B8dwMHW1Tkogk8riGXHogFjMctuDg=="
+	blockSigStr = "A7IMN3B47bB0MmCTh/sv7gpAvtfTOKvIkpkEICFsC2xG7PoRLT5RRuqKAI4vehTg/r5da1+265fZlnBh/ERkAg=="
 )
+
+func MustNoErr(err error) {
+	if err != nil {
+		fmt.Println(fmt.Errorf("err: [%s]", err.Error()))
+		os.Exit(-1)
+	}
+}
 
 func main() {
 	filePV := privval.LoadFilePV(privValidatorKeyFile, privValidatorStateFile)
 
-	t, _ := time.Parse("2006-01-02T15:04:05.000000Z", "2021-04-14T09:25:27.209219Z")
+	t, err := time.Parse("2006-01-02T15:04:05.000000Z", "2021-04-14T09:25:27.209219Z")
+	MustNoErr(err)
 
 	blockHash, err := hexutil.Decode(blockHashStr)
-	if err != nil {
-		fmt.Errorf("%s", err)
-	}
+	MustNoErr(err)
 
 	blockPartsHash, err := hexutil.Decode(blockPartsHashStr)
-	if err != nil {
-		fmt.Errorf("%s", err)
-	}
-
-	fmt.Printf("blockHash: [%x]\n", blockHash)
-	fmt.Printf("blockPartsHash: [%x]\n", blockPartsHash)
-
-	var partsHash common.HexBytes
-	err = (&partsHash).Unmarshal(blockPartsHash)
-	if err != nil {
-		fmt.Errorf("%s\n", err)
-	}
+	MustNoErr(err)
 
 	addr := filePV.GetPubKey().Address()
 	vote := types.Vote{
 		ValidatorAddress: addr,
 		ValidatorIndex:   0,
-		Height:           140188,
+		Height:           16235,
 		Round:            0,
 		Timestamp:        t,
 		Type:             types.PrecommitType,
 		BlockID:          types.BlockID{Hash: blockHash, PartsHeader: types.PartSetHeader{Total: 1, Hash: blockPartsHash}},
 	}
 
-	fmt.Printf("vote: %s\n", vote.String())
 	fmt.Printf("signBytes: [%x]\n", vote.SignBytes(chainID))
 	err = filePV.SignVote(chainID, &vote)
-	if err != nil {
-		fmt.Errorf("%s\n", err)
-	}
+	MustNoErr(err)
 
 	fmt.Printf("sig: [%x]\n", vote.Signature)
 
 	blockSig, err := base64.StdEncoding.DecodeString(blockSigStr)
-	if err != nil {
-		fmt.Errorf("%s", err)
-	}
+	MustNoErr(err)
 	fmt.Printf("actualBlockSig: [%x]\n", blockSig)
 }
