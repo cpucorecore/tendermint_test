@@ -14,8 +14,8 @@ import (
 
 const (
 	chainID                = "abc"
-	privValidatorKeyFile   = "/Users/sun/.dipd/config/priv_validator_key.json"
-	privValidatorStateFile = "/Users/sun/.dipd/data/priv_validator_state.json"
+	privValidatorKeyFile   = "./test_data/priv_validator_key.json"
+	privValidatorStateFile = "./test_data/priv_validator_state.json"
 
 	blockHashStr      = "0x426D04A90896F55308E1B708ADBC4AFAA36762B7640705C7CC1F45AFF991A29C"
 	blockPartsHashStr = "0x753B1095804F9A6E88BB443BB1C7A41A5E78D265D78BF291299BD342ACBB4CD4"
