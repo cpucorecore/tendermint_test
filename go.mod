@@ -1,4 +1,4 @@
-module github.com/cpucorecore/tendermint_study
+module github.com/cpucorecore/tendermint_test
 
 go 1.15
 
